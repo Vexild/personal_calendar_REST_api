@@ -12,7 +12,7 @@ var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://localhost:27017/";
 
 mongoose.connect(process.env.DBCON, 
-  { useUnifiedTopology: true }, 
+  { useUnifiedTopology: true },
   () => console.log("Connected to database.")
 );
 var Schema = mongoose.Schema;
@@ -36,7 +36,7 @@ var Event = mongoose.model('eventModel', eventSchema);
 module.exports = Event;
 
 app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+  console.log('Calendar app listening on port 3000!');
 });
 
 // ROOT
@@ -46,15 +46,10 @@ app.get('/', function (req, res) {
 
 // CREATE NEW EVENT
 app.get('/events', function (req, res) {
-  try{
-    Event.find({}, function (err, par) {
-      if (err) throw err;
-      console.log(par);
-      res.send(par);
-    })
-  }catch (e){
-    res.send(e)
-  }
+  Event.find({}, function (err, par) {
+    if (err) throw err;
+    res.send(par);
+  })
 });
 
 // NEW EVENT
@@ -63,24 +58,28 @@ app.post('/new_event', function(req, res) {
     event_name: req.body.eventName,
     starting_date: req.body.starting_date,
     ending_date: req.body.ending_date
+  }, function (err, par){
+    if(err) throw err;
+    res.send(par)
   });
-  res.send('Inserted '+ req.params.id);
 });
 
 // DELETE EVENT
 app.delete('/delete_event/:id', function (req, res) {
-  Event.deleteOne({'event_name' : req.params.id}, function (err){
+  console.log(req.params.id)
+  Event.deleteOne({'_id' : req.params.id}, function (err,par){
     if(err) throw err;
+    res.set('Access-Control-Allow-Origin','*');
+    //res.send("Deleted "+ req.params.id)
+    res.send(par)
   });
-  res.set('Access-Control-Allow-Origin','*');
-  res.send("Deleted "+ req.params.id)
+  
 });
 
 // GET SINGLE EVENT
 app.get('/events/:id', function (req, res) {
   Event.find({'event_name':req.params.id}, function (err, par) {
     if (err) throw err;
-    console.log(par);
     res.send(par);
   })
 });
