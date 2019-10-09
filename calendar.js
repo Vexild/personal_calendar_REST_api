@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var mongoose =require('mongoose');
 var bodyParser = require('body-parser')
+var moment = require('moment')
 require('dotenv/config');
 
 // Set body parser
@@ -80,6 +81,13 @@ app.delete('/delete_event/:id', function (req, res) {
 app.get('/events/:id', function (req, res) {
   Event.find({'event_name':req.params.id}, function (err, par) {
     if (err) throw err;
+      
+    // To calculate the time difference of two dates 
+    var Difference_In_Time = par[0].ending_date - par[0].starting_date; 
+    var date1 = moment((par[0].starting_date).toUTCString())
+    var date2 = moment((par[0].ending_date).toUTCString())
+    var difference = moment.utc(moment(date2,"DD/MM/YYYY HH:mm:ss").diff(moment(date1,"DD/MM/YYYY HH:mm:ss"))).format("DD HH:mm:ss")    
+    console.log("Difference in dates. Format is DD HH:mm : "+difference)
     res.send(par);
   })
 });
