@@ -14,7 +14,7 @@ This api contains following routes and endpoints:
 ````
 
 
-When posting or updating an event, a JSON is required as a body. In both cases(POST and PUT) following JSON is required:
+When posting or updating an event, new data is delivered through body as JSON. In both cases(POST and PUT) following JSON is required:
 ````
 {
 	"eventName" : "game night",
