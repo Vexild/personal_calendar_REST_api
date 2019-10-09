@@ -4,17 +4,12 @@ var mongoose =require('mongoose');
 var bodyParser = require('body-parser')
 require('dotenv/config');
 
-// import routes
-const postsRoute = require('./routes/posts')
-app.use('/', postsRoute);
-
 // Set body parser
 app.use(bodyParser.json());
 
 //DBCONNECT
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://localhost:27017/";
-
 
 mongoose.connect(process.env.DBCON, 
   { useUnifiedTopology: true }, 
@@ -37,12 +32,8 @@ var eventSchema = new Schema ({
   }
 },{collection: "calendar", versionKey: false});
 
-
 var Event = mongoose.model('eventModel', eventSchema);
 module.exports = Event;
-
-
-
 
 app.listen(3000, function () {
   console.log('Example app listening on port 3000!');
@@ -55,38 +46,54 @@ app.get('/', function (req, res) {
 
 // CREATE NEW EVENT
 app.get('/events', function (req, res) {
-  Event.find({}, function (err, par) {
+  try{
+    Event.find({}, function (err, par) {
+      if (err) throw err;
+      console.log(par);
+      res.send(par);
+    })
+  }catch (e){
+    res.send(e)
+  }
+});
+
+// NEW EVENT
+app.post('/new_event', function(req, res) {
+  Event.insertMany({
+    event_name: req.body.eventName,
+    starting_date: req.body.starting_date,
+    ending_date: req.body.ending_date
+  });
+  res.send('Inserted '+ request.params.id);
+});
+
+// DELETE EVENT
+app.delete('/delete_event/:id', function (req, res) {
+  Event.deleteOne({'event_name' : req.params.id}, function (err){
+    if(err) throw err;
+  });
+  res.set('Access-Control-Allow-Origin','*');
+  res.send("Deleted "+ req.params.id)
+});
+
+// GET SINGLE EVENT
+app.get('/events/:id', function (req, res) {
+  Event.find({'event_name':req.params.id}, function (err, par) {
     if (err) throw err;
     console.log(par);
     res.send(par);
   })
 });
 
-// NEW EVENT
-app.post('/new_event', function(request, response) {
-  var targetEvent = req.params.id
-  Event.insertMany({
-    event_name: request.body.eventName,
-    starting_date: request.body.starting_date,
-    ending_date: request.body.ending_date
-  });
-  response.send('Inserted '+ targetEvent);
-});
-
-// DELETE EVENT
-app.delete('/delete_event/:id', function (req, res) {
-  console.log(req.params.id);
-  var targetEvent = req.params.id
-  Event.deleteOne({'event_name' : targetEvent}, function (err){
+// UPDATE EVENT
+app.put('/modify_event/:id', function (req, res) {
+  var id = {'event_name' : req.params.id }
+  var data = {event_name: req.body.eventName,
+    starting_date: req.body.starting_date,
+    ending_date: req.body.ending_date}
+  console.log(id+" & "+data)
+  Event.updateOne(id, data, function(err, par) {
     if(err) throw err;
-  });
-  
-  res.set('Access-Control-Allow-Origin','*');
-  res.send("Deleted "+ targetEvent)
-
+    res.send(par)
+  })
 });
-
-app.put('/modify_event', function (req, res) {
-  res.send('Modify event!');
-});
-//asd
