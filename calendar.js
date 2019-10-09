@@ -64,7 +64,7 @@ app.post('/new_event', function(req, res) {
     starting_date: req.body.starting_date,
     ending_date: req.body.ending_date
   });
-  res.send('Inserted '+ request.params.id);
+  res.send('Inserted '+ req.params.id);
 });
 
 // DELETE EVENT
